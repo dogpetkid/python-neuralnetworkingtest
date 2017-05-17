@@ -5,8 +5,10 @@ from math import *
 import synapsereset
 
 def sigmoid(x):
-    return (1/(1+exp(-x))) #A logic curve
-    ##return x/sqrt(1+x*x) #A algebraic curve
+    return (1/(1+exp(-x)))
+
+def tanh(x):
+    return 2*sigmoid(x) -1
 
 def rectify(x):
     if x>0:
@@ -57,6 +59,7 @@ syndata = readandparse()
 
 def train():
     global syndata
+    global fitnessA
     cachesyndata = syndata[:]
     synapsereset.reset()
     syndata = readandparse()
@@ -75,6 +78,10 @@ def train():
     else:
         cachesyndata[0][0][1]+= .01
         synapsereset.update(cachesyndata)
+
+        
+def slopefind(address):
+    
 
 
 # # # # # # # # # #
@@ -96,58 +103,26 @@ templatechoose()
 
 
 def boxmain():
-    def nodein1():
+    def nodeinN(N):
         global nodedata
-        node1 = []
-        ##For each node, it finds it value (via the average and sigmoid in this case)
-        for nodenum in range(numofnodes[1]):
-            node = nodeaverage(1,nodenum)
-            node = sigmoid(node)
-            node1.append(node)
-        nodedata.append(node1)
+        nodeN = []
+        ##For each node, it finds it value (via the average and tanh in this case)
+        for nodenum in range(numofnodes[N]):
+            node = nodeaverage(N,nodenum)
+            node = tanh(node)
+            nodeN.append(node)
+        nodedata.append(nodeN)
     
-    def nodein2():
-        global nodedata
-        node2 = []
-        for nodenum in range(numofnodes[2]):
-            node = nodeaverage(2,nodenum)
-            node = sigmoid(node)
-            node2.append(node)
-        nodedata.append(node2)
-    
-    def nodein3():
-        global nodedata
-        node3 = []
-        for nodenum in range(numofnodes[3]):
-            node = nodeaverage(3,nodenum)
-            node = rectify(node)
-            node3.append(node)
-        nodedata.append(node3)
-    
-    def nodein4():
-        global nodedata
-        node4 = []
-        for nodenum in range(numofnodes[4]):
-            node = nodeaverage(4,nodenum,False)
-            node = rectify(node)
-            node4.append(node)
-        nodedata.append(node4)
-    
-    nodein1()
-    nodein2()
-    nodein3()
-    nodein4()
+    for i in range(1,5): nodeinN(i)
     print(nodedata)
-    fitnesstester = []
+    dataerror = 0
     i = 0
-    for test in nodedata[len(nodedata)-1]:
-        fitnesstester.append(abs(test-wanteddata[i])/10)
+    for output in nodedata[len(nodedata)-1]:
+        dataerror += abs(test-wanteddata[i])
         i+=1
+    dataerror = dataerror/len(nodedata[len(nodedata)-1])
     
-    fitness = 0
-    for test in fitnesstester:
-        fitness+= test
-    fitness = 1/fitness
+    fitness = 1/dataerror
     input("Fitness of network: " + str(fitness))
     return fitness
 
@@ -161,6 +136,7 @@ while True:
     train()
     if input("\n- - - - -\n").lower() == "stop":
         break
+    nodedata = None
     templatechoose()
     fitnessA = boxmain()
 

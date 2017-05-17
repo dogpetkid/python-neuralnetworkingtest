@@ -1,4 +1,5 @@
 from random import *
+from math import *
 import csv
 ##Reset synapses weights...
 
@@ -25,7 +26,9 @@ def reset():
                 nodeconnections = []
                 ##a previous node.
                 for previousnode in range(numofnodes[c-1]):
-                    weight = random()*2-1
+                    try: r = sqrt(6/(numofnodes[c-1]+numofnodes[c+1]))##r is an arbritrary number to help find the good range for small weights.
+                    except: r = sqrt(6/(numofnodes[c-1]+0))
+                    weight = uniform(-r,r)
                     nodeconnections.append(weight)
                 weightcolumn.append(nodeconnections)
                 n+=1
